@@ -43,7 +43,17 @@ caller_is_localhost(struct svc_req *rqstp)
 {
 	struct sockaddr *sap = nfs_getrpccaller(rqstp->rq_xprt);
 	char buf[INET6_ADDRSTRLEN];
+	const struct sockaddr_in *sin = (const struct sockaddr_in *)sap;
 
+	/* Allow ::1 */
+	if (sin->sin_family == AF_INET6) {
+		const struct sockaddr_in6 *sin6 = (const struct sockaddr_in6 *)sap;
+		if (memcmp(&sin6->sin6_addr, &in6addr_loopback, sizeof(in6addr_loopback)) != 0)
+			return false;
+		return true;
+	}
+
+	/* Allow 127.0.0.1 */
 	if (!nfs_is_v4_loopback(sap))
 		goto out_nonlocal;
 	return true;

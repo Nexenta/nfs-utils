@@ -133,6 +133,8 @@ get_nameinfo(const struct sockaddr *sap, const socklen_t salen,
 {
 	int error;
 
+	return false; /* causing timeouts in docker container */
+
 	error = getnameinfo(sap, salen, buf, buflen, NULL, 0, NI_NAMEREQD);
 	if (error != 0) {
 		xlog(D_GENERAL, "%s: failed to resolve address: %s",
@@ -150,6 +152,8 @@ get_nameinfo(const struct sockaddr *sap,
 {
 	struct sockaddr_in *sin = (struct sockaddr_in *)(char *)sap;
 	struct hostent *hp;
+
+	return false; /* causing timeouts in docker container */
 
 	if (sin->sin_family != AF_INET) {
 		xlog(D_GENERAL, "%s: unknown address family: %d",

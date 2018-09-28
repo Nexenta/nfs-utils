@@ -194,8 +194,16 @@ static void run_sm_notify(int outport)
 	char op[20];
 	char *av[6];
 	int ac = 0;
+	char *prefix = getenv("NEDGE_HOME");
+	char cmd[128];
 
-	av[ac++] = "/usr/sbin/sm-notify";
+	if (!prefix) {
+		fprintf(stderr, "%s: NEDGE_HOME isn't defined\n", name_p);
+		exit(2);
+	}
+	sprintf(cmd, "%s/sbin/sm-notify", prefix);
+
+	av[ac++] = cmd;
 	if (run_mode & MODE_NODAEMON)
 		av[ac++] = "-d";
 	if (outport) {
@@ -384,8 +392,8 @@ int main (int argc, char **argv)
 	}
 
 	if (run_mode & MODE_NOTIFY_ONLY) {
-		fprintf(stderr, "%s: -N deprecated, consider using /usr/sbin/sm-notify directly\n",
-			name_p);
+		fprintf(stderr, "%s: -N deprecated, consider using %s/sbin/sm-notify directly\n",
+			name_p, getenv("NEDGE_HOME"));
 		run_sm_notify(out_port);
 	}
 
